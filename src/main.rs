@@ -84,6 +84,18 @@ impl<'a> Vec3 {
         }
     }
 
+    fn dot(self: &Vec3, other: &Vec3) -> f32 {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    fn cross(self: &Vec3, other: &Vec3) -> Vec3 {
+        Vec3 {
+            x: (self.y * other.z - self.z * other.y),
+            y: (self.z * other.x - self.x * other.z),
+            z: (self.x * other.y - self.y * other.x),
+        }
+    }
+
     fn length(self: &Vec3) -> f32 {
         self.squared_length().sqrt()
     }
@@ -101,6 +113,17 @@ impl<'a> Vec3 {
             r: ((255.99 * self.x) as i32),
             g: ((255.99 * self.y) as i32),
             b: ((255.99 * self.z) as i32),
+        }
+    }
+}
+
+impl ops::Sub for &Vec3 {
+    type Output = Vec3;
+    fn sub(self, other: &Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
         }
     }
 }
@@ -160,6 +183,15 @@ impl ops::Add for Vec3 {
     }
 }
 
+fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
+    let center_vector = r.origin() - center;
+    let a = r.direction().dot(r.direction());
+    let b = 2.0 * center_vector.dot(r.direction());
+    let c = center_vector.dot(&center_vector) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant >= 0.0
+}
+
 struct Ray {
     o: Vec3,
     d: Vec3,
@@ -187,8 +219,23 @@ impl<'a> Ray {
 }
 
 fn color(r: &Ray) -> Vec3 {
-    let uv = r.direction().unit_vector();
-    let t = 0.5 * (uv.y + 1.0);
+    if hit_sphere(
+        &Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: -1.0,
+        },
+        0.5,
+        r,
+    ) {
+        return Vec3 {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    }
+    let ud = r.direction().unit_vector();
+    let t = 0.5 * (ud.y + 1.0);
     (1.0 - t)
         * Vec3 {
             x: 1.0,
