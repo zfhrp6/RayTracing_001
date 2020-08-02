@@ -13,6 +13,7 @@ pub fn color(r: &Ray) -> Color {
     let t = 0.5 * (ud.y + 1.0);
     ((1.0 - t) * Vec3::from_i(1, 1, 1) + t * Vec3::new(0.5, 0.7, 1.0)).as_color()
 }
+
 pub struct Color {
     pub r: isize,
     pub g: isize,
