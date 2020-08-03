@@ -36,6 +36,7 @@ impl<'a> Vec3 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
+    #[allow(dead_code)]
     fn cross(self: &Vec3, other: &Vec3) -> Vec3 {
         Vec3::new(
             self.y * other.z - self.z * other.y,
@@ -66,6 +67,20 @@ impl<'a> Vec3 {
 }
 
 impl ops::Sub for &Vec3 {
+    type Output = Vec3;
+    fn sub(self, other: &Vec3) -> Vec3 {
+        Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
+    }
+}
+
+impl ops::Sub for Vec3 {
+    type Output = Vec3;
+    fn sub(self, other: Vec3) -> Vec3 {
+        Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
+    }
+}
+
+impl ops::Sub<&Vec3> for Vec3 {
     type Output = Vec3;
     fn sub(self, other: &Vec3) -> Vec3 {
         Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)

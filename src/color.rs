@@ -1,12 +1,18 @@
+use crate::hitable::HitableList;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 use std::ops;
 
-pub fn color(r: &Ray) -> Color {
-    let t = hit_sphere(&Vec3::from_i(0, 0, -1), 0.5, r);
-    if t > 0.0 {
-        let n = (&(r.point_at_parameter(t)) - &Vec3::from_i(0, 0, -1)).unit_vector();
-        return (0.5 * Vec3::new(n.x + 1.0, n.y + 1.0, n.z + 1.0)).as_color();
+pub fn color(r: &Ray, world: &HitableList) -> Color {
+    let (is_hit, rec) = world.hit(r, 0.0, f32::MAX);
+    if is_hit {
+        return (0.5
+            * Vec3::new(
+                rec.normal.borrow().x + 1.0,
+                rec.normal.borrow().y + 1.0,
+                rec.normal.borrow().z + 1.0,
+            ))
+        .as_color();
     }
 
     let ud = r.direction().unit_vector();
