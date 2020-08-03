@@ -30,40 +30,46 @@ pub struct Sphere {
     pub radius: f32,
 }
 
-impl Hitable for Sphere {
-    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
+impl Sphere {
+    fn hit_sphere(self, r: &Ray) -> (f32, f32, f32) {
         let center_vector = r.origin() - &self.center;
         let a = r.direction().dot(r.direction());
         let b = center_vector.dot(r.direction());
         let c = center_vector.dot(&center_vector) - self.radius * self.radius;
         let discriminant = b * b - a * c;
-        if discriminant > 0.0 {
-            let mut temp = (-b - discriminant.sqrt()) / a;
-            if temp < t_max && temp > t_min {
-                let p = r.point_at_parameter(temp);
-                (
-                    true,
-                    HitRecord {
-                        t: RefCell::new(temp),
-                        p: RefCell::new(p),
-                        normal: RefCell::new((p - &self.center) / self.radius),
-                    },
-                );
-            }
-            temp = (-b + discriminant.sqrt()) / a;
-            if t_min < temp && temp < t_max {
-                let p = r.point_at_parameter(temp);
-                (
-                    true,
-                    HitRecord {
-                        t: RefCell::new(temp),
-                        p: RefCell::new(p),
-                        normal: RefCell::new((p - &self.center) / self.radius),
-                    },
-                );
-            }
+        (
+            discriminant,
+            (-b - discriminant.sqrt()) / a,
+            (-b + discriminant.sqrt()) / a,
+        )
+    }
+}
+
+impl Hitable for Sphere {
+    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
+        let (discriminant, negative_root, positive_root) = self.hit_sphere(r);
+        if discriminant < 0.0
+            || (!(t_min < negative_root && negative_root < t_max)
+                && !(t_min < positive_root && positive_root < t_max))
+        {
+            return (false, HitRecord::null());
         }
-        return (false, HitRecord::null());
+
+        let temp = if t_min < negative_root && negative_root < t_max {
+            negative_root
+        } else {
+            positive_root
+        };
+
+        let p = r.point_at_parameter(temp);
+        return (
+            true,
+            HitRecord {
+                t: RefCell::new(temp),
+                p: RefCell::new(p),
+                normal: RefCell::new((p - &self.center) / self.radius),
+            },
+        );
     }
 }
 
@@ -76,7 +82,7 @@ impl HitableList {
     pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
-        let temp_record: HitRecord = HitRecord::null();
+        let mut temp_record = HitRecord::null();
 
         for idx in 0..self.size {
             let (is_hit, record) =
@@ -89,8 +95,9 @@ impl HitableList {
             if is_hit {
                 hit_anything = true;
                 closest_so_far = *record.t.borrow();
+                temp_record = record.clone();
             }
         }
-        (hit_anything, temp_record.clone())
+        (hit_anything, temp_record)
     }
 }

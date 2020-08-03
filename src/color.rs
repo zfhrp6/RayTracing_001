@@ -36,15 +36,3 @@ impl ops::Add for Color {
         }
     }
 }
-pub fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> f32 {
-    let center_vector = r.origin() - center;
-    let a = r.direction().dot(r.direction());
-    let b = 2.0 * center_vector.dot(r.direction());
-    let c = center_vector.dot(&center_vector) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
-    }
-}
