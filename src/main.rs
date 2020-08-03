@@ -2,7 +2,6 @@ use ray_tracing_001::color::color;
 use ray_tracing_001::hitable::{HitableList, Sphere};
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
-use std::cell::RefCell;
 
 fn main() {
     let width = 200;
@@ -23,10 +22,7 @@ fn main() {
             radius: 100.0,
         }),
     ];
-    let world = HitableList {
-        list: RefCell::new(hitables),
-        size: 2,
-    };
+    let world = HitableList::new(hitables);
 
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {

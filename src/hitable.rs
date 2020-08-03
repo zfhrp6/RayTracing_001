@@ -79,6 +79,13 @@ pub struct HitableList {
 }
 
 impl HitableList {
+    pub fn new(list: Vec<Box<Sphere>>) -> HitableList {
+        let len = list.len() as isize;
+        HitableList {
+            list: RefCell::new(list),
+            size: len,
+        }
+    }
     pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
