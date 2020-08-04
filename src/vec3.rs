@@ -59,9 +59,9 @@ impl<'a> Vec3 {
 
     pub fn as_color(self: &Vec3) -> Color {
         Color {
-            r: ((255.99 * self.x) as isize),
-            g: ((255.99 * self.y) as isize),
-            b: ((255.99 * self.z) as isize),
+            r: ((255.99 * self.x) as usize),
+            g: ((255.99 * self.y) as usize),
+            b: ((255.99 * self.z) as usize),
         }
     }
 }

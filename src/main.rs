@@ -1,16 +1,13 @@
-use ray_tracing_001::color::color;
+use ray_tracing_001::camera::Camera;
+use ray_tracing_001::color::{color, Color};
 use ray_tracing_001::hitable::{HitableList, Sphere};
-use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
 
 fn main() {
-    let width = 200;
-    let height = 100;
+    let width = 200usize;
+    let height = 100usize;
 
-    let lower_left_corner = Vec3::from_i(-2, -1, -1);
-    let horizontal = Vec3::from_i(4, 0, 0);
-    let vertical = Vec3::from_i(0, 2, 0);
-    let origin = Vec3::from_i(0, 0, 0);
+    let sampling_num = 100usize;
 
     let hitables = vec![
         Box::new(Sphere {
@@ -23,17 +20,26 @@ fn main() {
         }),
     ];
     let world = HitableList::new(hitables);
+    let camera = Camera::new();
 
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {
         for x in 0..width {
-            let v = (y as f32) / (height as f32);
-            let u = (x as f32) / (width as f32);
-            let ray = Ray::new(origin, lower_left_corner + u * horizontal + v * vertical);
-            let color = color(&ray, &world);
-            print!("{} {} {}\n", color.r, color.g, color.b);
+            let mut temp_sum_color = Color { r: 0, g: 0, b: 0 };
+            for _ in 0..sampling_num {
+                let v = ((y as f32) + random()) / (height as f32);
+                let u = ((x as f32) + random()) / (width as f32);
+                let ray = &camera.get_ray(u, v);
+                temp_sum_color = temp_sum_color + color(&ray, &world);
+            }
+            let color = temp_sum_color / (sampling_num as f32);
+            println!("{} {} {}", color.r, color.g, color.b);
         }
     }
+}
+
+fn random() -> f32 {
+    rand::random::<f32>()
 }
 
 #[cfg(test)]
@@ -49,4 +55,12 @@ fn unit_vector() {
             (0.0 / (2.0 * 2.0 + 2.0 * 2.0 * 0.0 * 0.0) as f32).sqrt()
         )
     );
+}
+
+#[cfg(test)]
+#[test]
+fn random_test() {
+    assert!(random() > 0.0);
+    assert!(random() < 1.0);
+    assert_ne!(random(), random());
 }
