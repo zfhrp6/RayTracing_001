@@ -49,7 +49,7 @@ impl<'a> Vec3 {
         self.squared_length().sqrt()
     }
 
-    fn squared_length(self: &Vec3) -> f32 {
+    pub fn squared_length(self: &Vec3) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 

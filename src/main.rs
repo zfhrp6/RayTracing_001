@@ -1,6 +1,7 @@
 use ray_tracing_001::camera::Camera;
-use ray_tracing_001::color::{color, Color};
+use ray_tracing_001::color::Color;
 use ray_tracing_001::hitable::{HitableList, Sphere};
+use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
 
 fn main() {
@@ -33,8 +34,28 @@ fn main() {
                 let ray = &camera.get_ray(u, v);
                 temp_sum_color = temp_sum_color + color(&ray, &world);
             }
-            let color = temp_sum_color / (sampling_num as f32);
+            let color = (temp_sum_color / (sampling_num as f32)).hoge_gamma();
             println!("{} {} {}", color.r, color.g, color.b);
+        }
+    }
+}
+
+fn color(r: &Ray, world: &HitableList) -> Color {
+    let (is_hit, rec) = world.hit(r, 0.0001, f32::MAX);
+    if is_hit {
+        let target = rec.p.borrow().clone() + rec.normal.borrow().clone() + random_in_unit_sphere();
+        return color(&Ray::new(*rec.p.borrow(), target - *rec.p.borrow()), world) * 0.5;
+    }
+
+    let ud = r.direction().unit_vector();
+    let t = 0.5 * (ud.y + 1.0);
+    ((1.0 - t) * Vec3::from_i(1, 1, 1) + t * Vec3::new(0.5, 0.7, 1.0)).as_color()
+}
+fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = 2.0 * Vec3::new(random(), random(), random()) - Vec3::from_i(1, 1, 1);
+        if p.squared_length() < 1.0 {
+            return p;
         }
     }
 }

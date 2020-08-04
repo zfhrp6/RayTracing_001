@@ -6,7 +6,7 @@ use std::ops::Index;
 #[derive(Clone)]
 pub struct HitRecord {
     t: RefCell<f32>,
-    p: RefCell<Vec3>,
+    pub p: RefCell<Vec3>,
     pub normal: RefCell<Vec3>,
 }
 
