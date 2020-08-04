@@ -25,6 +25,7 @@ fn main() {
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {
         for x in 0..width {
+            // samping for anti-aliasing
             let mut temp_sum_color = Color { r: 0, g: 0, b: 0 };
             for _ in 0..sampling_num {
                 let v = ((y as f32) + random()) / (height as f32);
