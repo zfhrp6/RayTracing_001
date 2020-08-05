@@ -1,9 +1,11 @@
 use ray_tracing_001::camera::Camera;
 use ray_tracing_001::color::Color;
 use ray_tracing_001::hitable::{Hitable, HitableList, Sphere};
-use ray_tracing_001::misc::{random, random_in_unit_sphere};
+use ray_tracing_001::material::{Lambertian, Metal};
+use ray_tracing_001::misc::random;
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
+use std::rc::Rc;
 
 fn main() {
     let width = 200usize;
@@ -15,10 +17,30 @@ fn main() {
         Box::new(Sphere {
             center: Vec3::from_i(0, 0, -1),
             radius: 0.5,
+            material: Rc::new(Box::new(Lambertian {
+                albedo: Color::from_f(0.8, 0.3, 0.3),
+            })),
         }),
         Box::new(Sphere {
             center: Vec3::new(0.0, -100.5, -1.0),
             radius: 100.0,
+            material: Rc::new(Box::new(Lambertian {
+                albedo: Color::from_f(0.8, 0.8, 0.0),
+            })),
+        }),
+        Box::new(Sphere {
+            center: Vec3::new(1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Rc::new(Box::new(Metal {
+                albedo: Color::from_f(0.8, 0.6, 0.2),
+            })),
+        }),
+        Box::new(Sphere {
+            center: Vec3::new(-1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Rc::new(Box::new(Metal {
+                albedo: Color::from_f(0.8, 0.8, 0.8),
+            })),
         }),
     ];
     let world = HitableList::new(hitables);
@@ -33,7 +55,7 @@ fn main() {
                 let v = ((y as f32) + random()) / (height as f32);
                 let u = ((x as f32) + random()) / (width as f32);
                 let ray = &camera.get_ray(u, v);
-                temp_sum_color = temp_sum_color + color(&ray, &world);
+                temp_sum_color = temp_sum_color + color(&ray, &world, 0);
             }
             let color = (temp_sum_color / (sampling_num as f32)).hoge_gamma();
             println!("{} {} {}", color.r, color.g, color.b);
@@ -41,14 +63,22 @@ fn main() {
     }
 }
 
-fn color(r: &Ray, world: &HitableList) -> Color {
+fn color(r: &Ray, world: &HitableList, depth: isize) -> Color {
     let rec = world.hit(r, 0.0001, f32::MAX);
+
+    // object
     if rec.is_some() {
-        let record = rec.unwrap();
-        let target = record.p + record.normal + random_in_unit_sphere();
-        return color(&Ray::new(record.p, target - record.p), world) * 0.5;
+        let temp_record = rec.unwrap();
+        let material = &temp_record.material;
+        let (is_scattered, attenuation, scattered) = material.scatter(r, &temp_record);
+        if depth < 50 && is_scattered {
+            return attenuation * color(&scattered, world, depth + 1);
+        } else {
+            return Color::new(0, 0, 0);
+        }
     }
 
+    // background
     let ud = r.direction().unit_vector();
     let t = 0.5 * (ud.y + 1.0);
     ((1.0 - t) * Vec3::from_i(1, 1, 1) + t * Vec3::new(0.5, 0.7, 1.0)).as_color()
@@ -69,7 +99,30 @@ fn unit_vector() {
     );
 }
 
-#[cfg(test)]
+#[test]
+fn as_color_test() {
+    let col = Vec3::new(1.0, 0.0, 0.143).as_color();
+    assert_eq!(
+        col,
+        Color {
+            r: 255,
+            g: 0,
+            b: (0.143 * 255.99) as usize
+        }
+    );
+}
+
+#[test]
+fn as_vec3_test() {
+    let vec = Color {
+        r: 0,
+        g: 111,
+        b: 255,
+    }
+    .as_vec3();
+    assert_eq!(vec, Vec3::new(0.0, 111.0 / 255.99, 255.0 / 255.99));
+}
+
 #[test]
 fn random_test() {
     assert!(random() > 0.0);

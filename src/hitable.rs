@@ -1,10 +1,14 @@
+use crate::color::Color;
+use crate::material::{Lambertian, Material};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
+use std::rc::Rc;
 
 pub struct HitRecord {
     t: f32,
     pub p: Vec3,
     pub normal: Vec3,
+    pub material: Rc<Box<dyn Material>>,
 }
 
 impl HitRecord {
@@ -13,6 +17,9 @@ impl HitRecord {
             t: 0.0,
             p: Vec3::from_i(0, 0, 0),
             normal: Vec3::from_i(0, 0, 0),
+            material: Rc::new(Box::new(Lambertian {
+                albedo: Color::new(0, 0, 0),
+            })),
         }
     }
 }
@@ -21,10 +28,10 @@ pub trait Hitable {
     fn hit(self: &Self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
 
-#[derive(Copy, Clone)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
+    pub material: Rc<Box<dyn Material>>,
 }
 
 impl Sphere {
@@ -63,6 +70,7 @@ impl Hitable for Sphere {
             t: temp,
             p: p,
             normal: (p - &self.center) / self.radius,
+            material: self.material.clone(),
         });
     }
 }

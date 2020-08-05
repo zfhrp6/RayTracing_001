@@ -15,7 +15,7 @@ impl ops::Neg for Vec3 {
     }
 }
 
-impl<'a> Vec3 {
+impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { x, y, z }
     }
@@ -26,10 +26,6 @@ impl<'a> Vec3 {
             y: y as f32,
             z: z as f32,
         }
-    }
-
-    fn inverse(self: Vec3) -> Vec3 {
-        Vec3::new(1.0 / self.x, 1.0 / self.y, 1.0 / self.z)
     }
 
     pub fn dot(self: &Vec3, other: &Vec3) -> f32 {
@@ -76,7 +72,7 @@ impl ops::Sub for &Vec3 {
 impl ops::Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, other: Vec3) -> Vec3 {
-        Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
+        self - &other
     }
 }
 
@@ -87,21 +83,28 @@ impl ops::Sub<&Vec3> for Vec3 {
     }
 }
 
-impl ops::Mul for Vec3 {
+impl ops::Mul<Vec3> for Vec3 {
     type Output = Vec3;
     fn mul(self, other: Vec3) -> Vec3 {
         Vec3::new(self.x * other.x, self.y * other.y, self.z * other.z)
     }
 }
 
-impl ops::Div for Vec3 {
+impl ops::Mul<Vec3> for &Vec3 {
     type Output = Vec3;
-    fn div(self, other: Vec3) -> Vec3 {
-        self * other.inverse()
+    fn mul(self, other: Vec3) -> Vec3 {
+        Vec3::new(self.x * other.x, self.y * other.y, self.z * other.z)
     }
 }
 
 impl ops::Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, f: f32) -> Vec3 {
+        &self * f
+    }
+}
+
+impl ops::Mul<f32> for &Vec3 {
     type Output = Vec3;
     fn mul(self, f: f32) -> Vec3 {
         Vec3::new(self.x * f, self.y * f, self.z * f)
@@ -111,13 +114,26 @@ impl ops::Mul<f32> for Vec3 {
 impl ops::Div<f32> for Vec3 {
     type Output = Vec3;
     fn div(self, f: f32) -> Vec3 {
+        &self / f
+    }
+}
+
+impl ops::Div<f32> for &Vec3 {
+    type Output = Vec3;
+    fn div(self, f: f32) -> Vec3 {
         self * (1.0 / f)
+    }
+}
+
+impl ops::Mul<&Vec3> for f32 {
+    type Output = Vec3;
+    fn mul(self, vec: &Vec3) -> Vec3 {
+        vec * self
     }
 }
 
 impl ops::Mul<Vec3> for f32 {
     type Output = Vec3;
-
     fn mul(self, vec: Vec3) -> Vec3 {
         vec * self
     }
