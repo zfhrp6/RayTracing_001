@@ -3,7 +3,6 @@ use crate::vec3::Vec3;
 use std::cell::RefCell;
 use std::ops::Index;
 
-#[derive(Clone)]
 pub struct HitRecord {
     t: f32,
     pub p: Vec3,
@@ -21,7 +20,7 @@ impl HitRecord {
 }
 
 pub trait Hitable {
-    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord);
+    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
 
 #[derive(Copy, Clone)]
@@ -46,13 +45,13 @@ impl Sphere {
 }
 
 impl Hitable for Sphere {
-    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
+    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let (discriminant, negative_root, positive_root) = self.hit_sphere(r);
         if discriminant < 0.0
             || (!(t_min < negative_root && negative_root < t_max)
                 && !(t_min < positive_root && positive_root < t_max))
         {
-            return (false, HitRecord::null());
+            return None;
         }
 
         let temp = if t_min < negative_root && negative_root < t_max {
@@ -62,14 +61,11 @@ impl Hitable for Sphere {
         };
 
         let p = r.point_at_parameter(temp);
-        return (
-            true,
-            HitRecord {
-                t: temp,
-                p: p,
-                normal: (p - &self.center) / self.radius,
-            },
-        );
+        return Some(HitRecord {
+            t: temp,
+            p: p,
+            normal: (p - &self.center) / self.radius,
+        });
     }
 }
 
@@ -86,25 +82,29 @@ impl HitableList {
             size: len,
         }
     }
-    pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
+    pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
         let mut temp_record = HitRecord::null();
 
         for idx in 0..self.size {
-            let (is_hit, record) =
+            let record =
                 self.list
                     .borrow()
                     .as_slice()
                     .index(idx as usize)
                     .hit(r, t_min, closest_so_far);
-            //        for hittable in self.list.borrow().as_slice().iter() {
-            if is_hit {
+            if record.is_some() {
                 hit_anything = true;
-                closest_so_far = record.t;
-                temp_record = record.clone();
+                let tmp = record.unwrap();
+                closest_so_far = tmp.t;
+                temp_record = tmp;
             }
         }
-        (hit_anything, temp_record)
+        if hit_anything {
+            Some(temp_record)
+        } else {
+            None
+        }
     }
 }

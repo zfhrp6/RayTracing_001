@@ -42,10 +42,11 @@ fn main() {
 }
 
 fn color(r: &Ray, world: &HitableList) -> Color {
-    let (is_hit, rec) = world.hit(r, 0.0001, f32::MAX);
-    if is_hit {
-        let target = rec.p + rec.normal + random_in_unit_sphere();
-        return color(&Ray::new(rec.p, target - rec.p), world) * 0.5;
+    let rec = world.hit(r, 0.0001, f32::MAX);
+    if rec.is_some() {
+        let record = rec.unwrap();
+        let target = record.p + record.normal + random_in_unit_sphere();
+        return color(&Ray::new(record.p, target - record.p), world) * 0.5;
     }
 
     let ud = r.direction().unit_vector();
