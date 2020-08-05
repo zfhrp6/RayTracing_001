@@ -1,7 +1,5 @@
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use std::cell::RefCell;
-use std::ops::Index;
 
 pub struct HitRecord {
     t: f32,
@@ -20,7 +18,7 @@ impl HitRecord {
 }
 
 pub trait Hitable {
-    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn hit(self: &Self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
 
 #[derive(Copy, Clone)]
@@ -30,7 +28,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    fn hit_sphere(self, r: &Ray) -> (f32, f32, f32) {
+    fn hit_sphere(self: &Self, r: &Ray) -> (f32, f32, f32) {
         let center_vector = r.origin() - &self.center;
         let a = r.direction().dot(r.direction());
         let b = center_vector.dot(r.direction());
@@ -45,7 +43,7 @@ impl Sphere {
 }
 
 impl Hitable for Sphere {
-    fn hit(self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(self: &Self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let (discriminant, negative_root, positive_root) = self.hit_sphere(r);
         if discriminant < 0.0
             || (!(t_min < negative_root && negative_root < t_max)
@@ -70,30 +68,23 @@ impl Hitable for Sphere {
 }
 
 pub struct HitableList {
-    pub list: RefCell<Vec<Box<Sphere>>>,
+    pub list: Vec<Box<dyn Hitable>>,
     pub size: isize,
 }
 
 impl HitableList {
-    pub fn new(list: Vec<Box<Sphere>>) -> HitableList {
+    pub fn new(list: Vec<Box<dyn Hitable>>) -> HitableList {
         let len = list.len() as isize;
-        HitableList {
-            list: RefCell::new(list),
-            size: len,
-        }
+        HitableList { list, size: len }
     }
-    pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    pub fn hit(self: &Self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
         let mut temp_record = HitRecord::null();
 
-        for idx in 0..self.size {
-            let record =
-                self.list
-                    .borrow()
-                    .as_slice()
-                    .index(idx as usize)
-                    .hit(r, t_min, closest_so_far);
+        for idx in self.list.iter() {
+            let a = idx;
+            let record = a.hit(r, t_min, closest_so_far);
             if record.is_some() {
                 hit_anything = true;
                 let tmp = record.unwrap();

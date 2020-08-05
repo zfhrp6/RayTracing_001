@@ -1,6 +1,6 @@
 use ray_tracing_001::camera::Camera;
 use ray_tracing_001::color::Color;
-use ray_tracing_001::hitable::{HitableList, Sphere};
+use ray_tracing_001::hitable::{Hitable, HitableList, Sphere};
 use ray_tracing_001::misc::{random, random_in_unit_sphere};
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
@@ -11,7 +11,7 @@ fn main() {
 
     let sampling_num = 100usize;
 
-    let hitables = vec![
+    let hitables: Vec<Box<dyn Hitable>> = vec![
         Box::new(Sphere {
             center: Vec3::from_i(0, 0, -1),
             radius: 0.5,
