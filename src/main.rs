@@ -1,6 +1,7 @@
 use ray_tracing_001::camera::Camera;
 use ray_tracing_001::color::Color;
 use ray_tracing_001::hitable::{HitableList, Sphere};
+use ray_tracing_001::misc::{random, random_in_unit_sphere};
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
 
@@ -50,18 +51,6 @@ fn color(r: &Ray, world: &HitableList) -> Color {
     let ud = r.direction().unit_vector();
     let t = 0.5 * (ud.y + 1.0);
     ((1.0 - t) * Vec3::from_i(1, 1, 1) + t * Vec3::new(0.5, 0.7, 1.0)).as_color()
-}
-fn random_in_unit_sphere() -> Vec3 {
-    loop {
-        let p = 2.0 * Vec3::new(random(), random(), random()) - Vec3::from_i(1, 1, 1);
-        if p.squared_length() < 1.0 {
-            return p;
-        }
-    }
-}
-
-fn random() -> f32 {
-    rand::random::<f32>()
 }
 
 #[cfg(test)]
