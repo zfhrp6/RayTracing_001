@@ -5,17 +5,17 @@ use std::ops::Index;
 
 #[derive(Clone)]
 pub struct HitRecord {
-    t: RefCell<f32>,
-    pub p: RefCell<Vec3>,
-    pub normal: RefCell<Vec3>,
+    t: f32,
+    pub p: Vec3,
+    pub normal: Vec3,
 }
 
 impl HitRecord {
     pub fn null() -> HitRecord {
         HitRecord {
-            t: RefCell::new(0.0),
-            p: RefCell::new(Vec3::from_i(0, 0, 0)),
-            normal: RefCell::new(Vec3::from_i(0, 0, 0)),
+            t: 0.0,
+            p: Vec3::from_i(0, 0, 0),
+            normal: Vec3::from_i(0, 0, 0),
         }
     }
 }
@@ -65,9 +65,9 @@ impl Hitable for Sphere {
         return (
             true,
             HitRecord {
-                t: RefCell::new(temp),
-                p: RefCell::new(p),
-                normal: RefCell::new((p - &self.center) / self.radius),
+                t: temp,
+                p: p,
+                normal: (p - &self.center) / self.radius,
             },
         );
     }
@@ -101,7 +101,7 @@ impl HitableList {
             //        for hittable in self.list.borrow().as_slice().iter() {
             if is_hit {
                 hit_anything = true;
-                closest_so_far = *record.t.borrow();
+                closest_so_far = record.t;
                 temp_record = record.clone();
             }
         }

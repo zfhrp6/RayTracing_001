@@ -43,8 +43,8 @@ fn main() {
 fn color(r: &Ray, world: &HitableList) -> Color {
     let (is_hit, rec) = world.hit(r, 0.0001, f32::MAX);
     if is_hit {
-        let target = rec.p.borrow().clone() + rec.normal.borrow().clone() + random_in_unit_sphere();
-        return color(&Ray::new(*rec.p.borrow(), target - *rec.p.borrow()), world) * 0.5;
+        let target = rec.p + rec.normal + random_in_unit_sphere();
+        return color(&Ray::new(rec.p, target - rec.p), world) * 0.5;
     }
 
     let ud = r.direction().unit_vector();
