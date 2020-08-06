@@ -20,3 +20,10 @@ jobs:
       run: cargo build -vv --all --release
     - name: Run tests
       run: cargo test -vv --all --release
+    - name: run
+      run: cargo run > output.ppm
+    - uses: actions/upload-artifact@v2
+      with:
+        name: output.ppm
+        path: output.ppm
+
