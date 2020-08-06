@@ -61,6 +61,40 @@ impl Material for Metal {
     }
 }
 
+pub struct Dielectric {
+    pub ref_idx: f32,
+}
+
+impl Material for Dielectric {
+    fn scatter(self: &Self, r_in: &Ray, record: &HitRecord) -> (bool, Color, Ray) {
+        let reflected = reflect(r_in.direction(), &record.normal);
+        let attenuation = Color::new(255, 255, 255);
+        let (outward_normal, rri) = if r_in.direction().dot(&record.normal) > 0.0 {
+            (-record.normal, self.ref_idx)
+        } else {
+            (record.normal, 1.0 / self.ref_idx)
+        };
+        let refracted = refract(r_in.direction(), &outward_normal, rri);
+        if refracted.is_some() {
+            (true, attenuation, Ray::new(record.p, refracted.unwrap()))
+        } else {
+            (true, attenuation, Ray::new(record.p, reflected))
+        }
+    }
+}
+
 fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     v - &(2.0 * n * v.dot(n))
+}
+
+fn refract(v: &Vec3, n: &Vec3, relative_refractive_index: f32) -> Option<Vec3> {
+    let uv = v.unit_vector();
+    let dt = uv.dot(n);
+    let discriminant =
+        1.0 - relative_refractive_index * relative_refractive_index * (1.0 - dt * dt);
+    if discriminant > 0.0 {
+        Some(relative_refractive_index * (uv - n * dt) - n * discriminant.sqrt())
+    } else {
+        None
+    }
 }
