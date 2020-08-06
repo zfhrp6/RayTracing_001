@@ -41,7 +41,7 @@ impl Vec3 {
         )
     }
 
-    fn length(self: &Vec3) -> f32 {
+    pub fn length(self: &Vec3) -> f32 {
         self.squared_length().sqrt()
     }
 

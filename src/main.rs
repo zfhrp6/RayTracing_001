@@ -34,6 +34,11 @@ fn main() {
             radius: 0.5,
             material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
         }),
+        Box::new(Sphere {
+            center: Vec3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
+        }),
     ];
     let world = HitableList::new(hitables);
     let camera = Camera::new();
