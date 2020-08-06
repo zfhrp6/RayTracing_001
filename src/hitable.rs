@@ -17,9 +17,7 @@ impl HitRecord {
             t: 0.0,
             p: Vec3::from_i(0, 0, 0),
             normal: Vec3::from_i(0, 0, 0),
-            material: Rc::new(Box::new(Lambertian {
-                albedo: Color::new(0, 0, 0),
-            })),
+            material: Rc::new(Box::new(Lambertian::new(Color::new(0, 0, 0)))),
         }
     }
 }

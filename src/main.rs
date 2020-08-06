@@ -17,30 +17,22 @@ fn main() {
         Box::new(Sphere {
             center: Vec3::from_i(0, 0, -1),
             radius: 0.5,
-            material: Rc::new(Box::new(Lambertian {
-                albedo: Color::from_f(0.8, 0.3, 0.3),
-            })),
+            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.8, 0.3, 0.3)))),
         }),
         Box::new(Sphere {
             center: Vec3::new(0.0, -100.5, -1.0),
             radius: 100.0,
-            material: Rc::new(Box::new(Lambertian {
-                albedo: Color::from_f(0.8, 0.8, 0.0),
-            })),
+            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.8, 0.8, 0.0)))),
         }),
         Box::new(Sphere {
             center: Vec3::new(1.0, 0.0, -1.0),
             radius: 0.5,
-            material: Rc::new(Box::new(Metal {
-                albedo: Color::from_f(0.8, 0.6, 0.2),
-            })),
+            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.6, 0.2), 1.0))),
         }),
         Box::new(Sphere {
             center: Vec3::new(-1.0, 0.0, -1.0),
             radius: 0.5,
-            material: Rc::new(Box::new(Metal {
-                albedo: Color::from_f(0.8, 0.8, 0.8),
-            })),
+            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.8, 0.8), 0.3))),
         }),
     ];
     let world = HitableList::new(hitables);

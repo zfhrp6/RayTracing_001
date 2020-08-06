@@ -9,7 +9,13 @@ pub trait Material {
 }
 
 pub struct Lambertian {
-    pub albedo: Color,
+    albedo: Color,
+}
+
+impl Lambertian {
+    pub fn new(albedo: Color) -> Lambertian {
+        Lambertian { albedo }
+    }
 }
 
 impl Material for Lambertian {
@@ -22,13 +28,30 @@ impl Material for Lambertian {
 }
 
 pub struct Metal {
-    pub albedo: Color,
+    albedo: Color,
+    fuzziness: f32,
+}
+
+impl Metal {
+    pub fn new(albedo: Color, fuzziness: f32) -> Metal {
+        Metal {
+            albedo,
+            fuzziness: match fuzziness {
+                _ if fuzziness < 0.0 => 0.0,
+                _ if fuzziness > 1.0 => 1.0,
+                _ => fuzziness,
+            },
+        }
+    }
 }
 
 impl Material for Metal {
     fn scatter(self: &Self, r_in: &Ray, record: &HitRecord) -> (bool, Color, Ray) {
         let reflected = reflect(&r_in.direction().unit_vector(), &record.normal);
-        let scattered = Ray::new(record.p, reflected);
+        let scattered = Ray::new(
+            record.p,
+            reflected + self.fuzziness * random_in_unit_sphere(),
+        );
         let attenuation = self.albedo;
         (
             scattered.direction().dot(&record.normal) > 0.0,
