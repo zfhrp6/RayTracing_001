@@ -1,7 +1,7 @@
 use ray_tracing_001::camera::Camera;
 use ray_tracing_001::color::Color;
 use ray_tracing_001::hitable::{Hitable, HitableList, Sphere};
-use ray_tracing_001::material::{Lambertian, Metal};
+use ray_tracing_001::material::{Dielectric, Lambertian, Metal};
 use ray_tracing_001::misc::random;
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
@@ -17,7 +17,7 @@ fn main() {
         Box::new(Sphere {
             center: Vec3::from_i(0, 0, -1),
             radius: 0.5,
-            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.8, 0.3, 0.3)))),
+            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.1, 0.2, 0.5)))),
         }),
         Box::new(Sphere {
             center: Vec3::new(0.0, -100.5, -1.0),
@@ -27,12 +27,17 @@ fn main() {
         Box::new(Sphere {
             center: Vec3::new(1.0, 0.0, -1.0),
             radius: 0.5,
-            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.6, 0.2), 1.0))),
+            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.6, 0.2), 0.0))),
         }),
         Box::new(Sphere {
             center: Vec3::new(-1.0, 0.0, -1.0),
             radius: 0.5,
-            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.8, 0.8), 0.3))),
+            material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
+        }),
+        Box::new(Sphere {
+            center: Vec3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
         }),
     ];
     let world = HitableList::new(hitables);
