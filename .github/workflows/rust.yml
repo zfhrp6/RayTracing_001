@@ -18,12 +18,16 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build -v --all
+      timeout-minutes: 3
     - name: Run tests
       run: cargo test -v --all
+      timeout-minutes: 3
     - name: Run tests
       run: cargo test -v --all --release
+      timeout-minutes: 3
     - name: run
       run: cargo run --release > output.ppm
+      timeout-minutes: 3
     - uses: actions/upload-artifact@v2
       with:
         name: artifact
