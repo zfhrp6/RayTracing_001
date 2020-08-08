@@ -1,4 +1,3 @@
-use crate::color::Color;
 use crate::material::{Lambertian, Material};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -15,9 +14,9 @@ impl HitRecord {
     pub fn null() -> HitRecord {
         HitRecord {
             t: 0.0,
-            p: Vec3::from_i(0, 0, 0),
-            normal: Vec3::from_i(0, 0, 0),
-            material: Rc::new(Box::new(Lambertian::new(Color::new(0, 0, 0)))),
+            p: (0, 0, 0).into(),
+            normal: (0, 0, 0).into(),
+            material: Rc::new(Box::new(Lambertian::new((0, 0, 0).into()))),
         }
     }
 }

@@ -15,36 +15,36 @@ fn main() {
 
     let hitables: Vec<Box<dyn Hitable>> = vec![
         Box::new(Sphere {
-            center: Vec3::from_i(0, 0, -1),
+            center: (0, 0, -1).into(),
             radius: 0.5,
-            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.1, 0.2, 0.5)))),
+            material: Rc::new(Box::new(Lambertian::new((0.1, 0.2, 0.5).into()))),
         }),
         Box::new(Sphere {
-            center: Vec3::new(0.0, -100.5, -1.0),
+            center: (0.0, -100.5, -1.0).into(),
             radius: 100.0,
-            material: Rc::new(Box::new(Lambertian::new(Color::from_f(0.8, 0.8, 0.0)))),
+            material: Rc::new(Box::new(Lambertian::new((0.8, 0.8, 0.0).into()))),
         }),
         Box::new(Sphere {
-            center: Vec3::new(1.0, 0.0, -1.0),
+            center: (1.0, 0.0, -1.0).into(),
             radius: 0.5,
-            material: Rc::new(Box::new(Metal::new(Color::from_f(0.8, 0.6, 0.2), 0.0))),
+            material: Rc::new(Box::new(Metal::new((0.8, 0.6, 0.2).into(), 0.0))),
         }),
         Box::new(Sphere {
-            center: Vec3::new(-1.0, 0.0, -1.0),
+            center: (-1.0, 0.0, -1.0).into(),
             radius: 0.5,
             material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
         }),
         Box::new(Sphere {
-            center: Vec3::new(-1.0, 0.0, -1.0),
+            center: (-1.0, 0.0, -1.0).into(),
             radius: -0.45,
             material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
         }),
     ];
     let world = HitableList::new(hitables);
     let camera = Camera::new(
-        Vec3::from_i(-2, 2, 1),
-        Vec3::from_i(0, 0, -1),
-        Vec3::from_i(0, 1, 0),
+        (-2, 2, 1).into(),
+        (0, 0, -1).into(),
+        (0, 1, 0).into(),
         90.0,
         (width as f32) / (height as f32),
     );
