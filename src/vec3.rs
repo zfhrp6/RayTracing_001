@@ -1,5 +1,6 @@
 use crate::color::Color;
 use crate::misc::random;
+use rand::rngs;
 use std::ops;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -150,9 +151,9 @@ impl From<(isize, isize, isize)> for Vec3 {
     }
 }
 
-pub fn random_in_unit_sphere() -> Vec3 {
+pub fn random_in_unit_sphere(rng: &mut rngs::StdRng) -> Vec3 {
     loop {
-        let p = 2.0 * Vec3::new(random(), random(), random()) - Vec3::from_i(1, 1, 1);
+        let p = 2.0 * Vec3::new(random(rng), random(rng), random(rng)) - Vec3::from_i(1, 1, 1);
         if p.squared_length() < 1.0 {
             return p;
         }

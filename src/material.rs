@@ -3,9 +3,15 @@ use crate::hitable::HitRecord;
 use crate::misc::random;
 use crate::ray::Ray;
 use crate::vec3::{random_in_unit_sphere, Vec3};
+use rand::rngs;
 
 pub trait Material {
-    fn scatter(self: &Self, r_in: &Ray, _record: &HitRecord) -> (bool, Color, Ray);
+    fn scatter(
+        self: &Self,
+        r_in: &Ray,
+        _record: &HitRecord,
+        rng: &mut rngs::StdRng,
+    ) -> (bool, Color, Ray);
 }
 
 pub struct Lambertian {
@@ -19,8 +25,13 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(self: &Self, _r_in: &Ray, record: &HitRecord) -> (bool, Color, Ray) {
-        let target = record.p + record.normal + random_in_unit_sphere();
+    fn scatter(
+        self: &Self,
+        _r_in: &Ray,
+        record: &HitRecord,
+        rng: &mut rngs::StdRng,
+    ) -> (bool, Color, Ray) {
+        let target = record.p + record.normal + random_in_unit_sphere(rng);
         let scatterd = Ray::new(record.p, target - record.p);
         let attenuation = self.albedo;
         (true, attenuation, scatterd)
@@ -46,11 +57,16 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(self: &Self, r_in: &Ray, record: &HitRecord) -> (bool, Color, Ray) {
+    fn scatter(
+        self: &Self,
+        r_in: &Ray,
+        record: &HitRecord,
+        rng: &mut rngs::StdRng,
+    ) -> (bool, Color, Ray) {
         let reflected = reflect(&r_in.direction().unit_vector(), &record.normal);
         let scattered: Ray = Ray::new(
             record.p,
-            reflected + self.fuzziness * random_in_unit_sphere(),
+            reflected + self.fuzziness * random_in_unit_sphere(rng),
         );
         let attenuation = self.albedo;
         (
@@ -66,7 +82,12 @@ pub struct Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(self: &Self, r_in: &Ray, record: &HitRecord) -> (bool, Color, Ray) {
+    fn scatter(
+        self: &Self,
+        r_in: &Ray,
+        record: &HitRecord,
+        rng: &mut rngs::StdRng,
+    ) -> (bool, Color, Ray) {
         let reflected = reflect(r_in.direction(), &record.normal);
         let attenuation = (255, 255, 255).into();
         let (outward_normal, rri, cosine) = if r_in.direction().dot(&record.normal) > 0.0 {
@@ -90,7 +111,7 @@ impl Material for Dielectric {
         } else {
             1.0
         };
-        if random() < probability_of_reflection {
+        if random(rng) < probability_of_reflection {
             (true, attenuation, Ray::new(record.p, reflected))
         } else {
             (true, attenuation, Ray::new(record.p, refracted.unwrap()))
