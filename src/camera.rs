@@ -13,7 +13,7 @@ impl Camera {
         look_from: Vec3,
         look_at: Vec3,
         view_up: Vec3,
-        v_field_of_view: f32, // to to bottom in degrees
+        v_field_of_view: f32, // from top to bottom in degrees
         aspect: f32,
     ) -> Camera {
         let theta = degree_to_radian(v_field_of_view);
