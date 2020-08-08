@@ -115,7 +115,10 @@ fn refract(v: &Vec3, n: &Vec3, relative_refractive_index: f32) -> Option<Vec3> {
 }
 
 fn schlick(cosine: f32, ref_idx: f32) -> f32 {
-    let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
-    r0 *= r0;
+    let r0 = square((1.0 - ref_idx) / (1.0 + ref_idx));
     r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
+}
+
+fn square(v: f32) -> f32 {
+    v * v
 }
