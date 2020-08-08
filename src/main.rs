@@ -41,7 +41,13 @@ fn main() {
         }),
     ];
     let world = HitableList::new(hitables);
-    let camera = Camera::new();
+    let camera = Camera::new(
+        Vec3::from_i(-2, 2, 1),
+        Vec3::from_i(0, 0, -1),
+        Vec3::from_i(0, 1, 0),
+        90.0,
+        (width as f32) / (height as f32),
+    );
 
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {

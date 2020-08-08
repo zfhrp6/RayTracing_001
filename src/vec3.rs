@@ -32,8 +32,7 @@ impl Vec3 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    #[allow(dead_code)]
-    fn cross(self: &Vec3, other: &Vec3) -> Vec3 {
+    pub fn cross(self: &Vec3, other: &Vec3) -> Vec3 {
         Vec3::new(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
