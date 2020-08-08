@@ -10,42 +10,55 @@ pub struct Color {
 
 impl Color {
     pub fn hoge_gamma(&self) -> Color {
-        Color {
-            r: (((self.r as f64) / 255.99).sqrt() * 255.99) as usize,
-            g: (((self.g as f64) / 255.99).sqrt() * 255.99) as usize,
-            b: (((self.b as f64) / 255.99).sqrt() * 255.99) as usize,
+        fn conv(o: usize) -> usize {
+            (((o as f64) / 255.99).sqrt() * 255.99) as usize
         }
+        Color::new(conv(self.r), conv(self.g), conv(self.b))
     }
 
     pub fn as_vec3(&self) -> Vec3 {
-        Vec3::new(
-            (self.r as f32) / 255.99,
-            (self.g as f32) / 255.99,
-            (self.b as f32) / 255.99,
-        )
+        fn conv(u: usize) -> f32 {
+            (u as f32) / 255.99
+        }
+        Vec3::new(conv(self.r), conv(self.g), conv(self.b))
     }
 
     pub fn new(r: usize, g: usize, b: usize) -> Color {
         Color { r, g, b }
     }
+}
 
-    pub fn from_f(r: f32, g: f32, b: f32) -> Color {
-        Color {
-            r: (r * 255.99) as usize,
-            g: (g * 255.99) as usize,
-            b: (b * 255.99) as usize,
+impl From<(usize, usize, usize)> for Color {
+    fn from(v: (usize, usize, usize)) -> Color {
+        Color::new(v.0, v.1, v.2)
+    }
+}
+
+impl From<(f32, f32, f32)> for Color {
+    fn from(v: (f32, f32, f32)) -> Color {
+        fn conv(f: f32) -> usize {
+            (f * 255.99) as usize
         }
+        Color::new(conv(v.0), conv(v.1), conv(v.2))
+    }
+}
+impl From<&Vec3> for Color {
+    fn from(vec: &Vec3) -> Color {
+        vec.as_color()
     }
 }
 
 impl ops::Div<f32> for Color {
     type Output = Color;
     fn div(self: Color, div: f32) -> Color {
-        Color {
-            r: ((self.r as f32) / div) as usize,
-            g: ((self.g as f32) / div) as usize,
-            b: ((self.b as f32) / div) as usize,
+        fn div_inner(u: usize, div: f32) -> usize {
+            ((u as f32) / div) as usize
         }
+        Color::new(
+            div_inner(self.r, div),
+            div_inner(self.g, div),
+            div_inner(self.b, div),
+        )
     }
 }
 
@@ -59,11 +72,14 @@ impl ops::Mul for Color {
 impl ops::Mul<f32> for Color {
     type Output = Color;
     fn mul(self: Color, div: f32) -> Color {
-        Color {
-            r: ((self.r as f32) * div) as usize,
-            g: ((self.g as f32) * div) as usize,
-            b: ((self.b as f32) * div) as usize,
+        fn mul_inner(u: usize, div: f32) -> usize {
+            ((u as f32) * div) as usize
         }
+        Color::new(
+            mul_inner(self.r, div),
+            mul_inner(self.g, div),
+            mul_inner(self.b, div),
+        )
     }
 }
 impl ops::Add for Color {

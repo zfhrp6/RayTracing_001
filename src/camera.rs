@@ -1,3 +1,4 @@
+use crate::misc::degree_to_radian;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 pub struct Camera {
@@ -15,7 +16,7 @@ impl Camera {
         v_field_of_view: f32, // to to bottom in degrees
         aspect: f32,
     ) -> Camera {
-        let theta = v_field_of_view * std::f32::consts::PI / 180.0;
+        let theta = degree_to_radian(v_field_of_view);
         let half_height = (theta / 2.0).tan();
         let half_width = aspect * half_height;
         let w = (look_from - look_at).unit_vector();

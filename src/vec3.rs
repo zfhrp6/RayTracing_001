@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::misc::random;
 use std::ops;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -21,11 +22,7 @@ impl Vec3 {
     }
 
     pub fn from_i(x: isize, y: isize, z: isize) -> Vec3 {
-        Vec3 {
-            x: x as f32,
-            y: y as f32,
-            z: z as f32,
-        }
+        Vec3::new(x as f32, y as f32, z as f32)
     }
 
     pub fn dot(self: &Vec3, other: &Vec3) -> f32 {
@@ -53,11 +50,7 @@ impl Vec3 {
     }
 
     pub fn as_color(self: &Vec3) -> Color {
-        Color {
-            r: ((255.99 * self.x) as usize),
-            g: ((255.99 * self.y) as usize),
-            b: ((255.99 * self.z) as usize),
-        }
+        (self.x, self.y, self.z).into()
     }
 }
 
@@ -142,5 +135,27 @@ impl ops::Add for Vec3 {
     type Output = Vec3;
     fn add(self, other: Vec3) -> Vec3 {
         Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
+    }
+}
+
+impl From<(f32, f32, f32)> for Vec3 {
+    fn from(pos: (f32, f32, f32)) -> Vec3 {
+        Vec3::new(pos.0, pos.1, pos.2)
+    }
+}
+
+impl From<(isize, isize, isize)> for Vec3 {
+    fn from(pos: (isize, isize, isize)) -> Vec3 {
+        Vec3::new(pos.0 as f32, pos.1 as f32, pos.2 as f32)
+    }
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    let mut p: Vec3;
+    loop {
+        p = 2.0 * Vec3::new(random(), random(), random()) - Vec3::from_i(1, 1, 1);
+        if p.squared_length() < 1.0 {
+            return p;
+        }
     }
 }
