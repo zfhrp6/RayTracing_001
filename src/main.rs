@@ -13,6 +13,7 @@ fn main() {
 
     let sampling_num = 100usize;
 
+    // list of objects
     let hitables: Vec<Box<dyn Hitable>> = vec![
         Box::new(Sphere {
             center: (0, 0, -1).into(),
@@ -41,14 +42,19 @@ fn main() {
         }),
     ];
     let world = HitableList::new(hitables);
+    // settings of camera
+    let look_from: Vec3 = (3, 3, 2).into();
+    let look_at: Vec3 = (0, 0, -1).into();
+    let aperture = 2.0;
     let camera = Camera::new(
-        (-2, 2, 1).into(),
-        (0, 0, -1).into(),
+        look_from,
+        look_at,
         (0, 1, 0).into(),
-        90.0,
+        20.0,
         (width as f32) / (height as f32),
+        aperture,
+        (look_from - look_at).length(),
     );
-
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {
         for x in 0..width {
@@ -124,11 +130,4 @@ fn as_vec3_test() {
     }
     .as_vec3();
     assert_eq!(vec, Vec3::new(0.0, 111.0 / 255.99, 255.0 / 255.99));
-}
-
-#[test]
-fn random_test() {
-    assert!(random() > 0.0);
-    assert!(random() < 1.0);
-    assert_ne!(random(), random());
 }
