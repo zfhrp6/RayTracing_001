@@ -1,51 +1,25 @@
 use ray_tracing_001::camera::Camera;
 use ray_tracing_001::color::Color;
 use ray_tracing_001::hitable::{Hitable, HitableList, Sphere};
-use ray_tracing_001::material::{Dielectric, Lambertian, Metal};
+use ray_tracing_001::material::{Dielectric, Lambertian, Material, Metal};
 use ray_tracing_001::misc::random;
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
 use std::rc::Rc;
 
 fn main() {
-    let width = 200usize;
-    let height = 100usize;
+    let aspect_ratio = 16.0 / 9.0;
+    let width = 1600usize;
+    let height = ((width as f64) / aspect_ratio) as usize;
 
     let sampling_num = 100usize;
 
-    // list of objects
-    let hitables: Vec<Box<dyn Hitable>> = vec![
-        Box::new(Sphere {
-            center: (0, 0, -1).into(),
-            radius: 0.5,
-            material: Rc::new(Box::new(Lambertian::new((0.1, 0.2, 0.5).into()))),
-        }),
-        Box::new(Sphere {
-            center: (0.0, -100.5, -1.0).into(),
-            radius: 100.0,
-            material: Rc::new(Box::new(Lambertian::new((0.8, 0.8, 0.0).into()))),
-        }),
-        Box::new(Sphere {
-            center: (1.0, 0.0, -1.0).into(),
-            radius: 0.5,
-            material: Rc::new(Box::new(Metal::new((0.8, 0.6, 0.2).into(), 0.0))),
-        }),
-        Box::new(Sphere {
-            center: (-1.0, 0.0, -1.0).into(),
-            radius: 0.5,
-            material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
-        }),
-        Box::new(Sphere {
-            center: (-1.0, 0.0, -1.0).into(),
-            radius: -0.45,
-            material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
-        }),
-    ];
+    let hitables = random_scene();
     let world = HitableList::new(hitables);
     // settings of camera
-    let look_from: Vec3 = (3, 3, 2).into();
-    let look_at: Vec3 = (0, 0, -1).into();
-    let aperture = 2.0;
+    let look_from = (13, 2, 3).into();
+    let look_at: Vec3 = (0, 0, 0).into();
+    let aperture = 0.1;
     let camera = Camera::new(
         look_from,
         look_at,
@@ -53,7 +27,7 @@ fn main() {
         20.0,
         (width as f32) / (height as f32),
         aperture,
-        (look_from - look_at).length(),
+        10.0,
     );
     println!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {
@@ -91,6 +65,89 @@ fn color(r: &Ray, world: &HitableList, depth: isize) -> Color {
     let ud = r.direction().unit_vector();
     let t = 0.5 * (ud.y + 1.0);
     ((1.0 - t) * Vec3::from_i(1, 1, 1) + t * Vec3::new(0.5, 0.7, 1.0)).as_color()
+}
+
+fn random_scene() -> Vec<Box<dyn Hitable>> {
+    enum Materials {
+        Lambertian,
+        Metal,
+        Dielectric,
+    };
+    fn choose_random_material() -> Materials {
+        let r = random();
+        match r {
+            _ if r < 0.8 => Materials::Lambertian,
+            _ if r < 0.95 => Materials::Metal,
+            _ => Materials::Dielectric,
+        }
+    }
+    fn create_object(center: Vec3, material: Rc<Box<dyn Material>>) -> Box<dyn Hitable> {
+        Box::new(Sphere {
+            center,
+            radius: 0.2,
+            material,
+        })
+    }
+    fn random_material(en: Materials) -> Rc<Box<dyn Material>> {
+        match en {
+            Materials::Lambertian => Rc::new(Box::new(Lambertian::new(
+                (
+                    random() * random(),
+                    random() * random(),
+                    random() * random(),
+                )
+                    .into(),
+            ))),
+            Materials::Metal => Rc::new(Box::new(Metal::new(
+                (
+                    0.5 * (1.0 + random()),
+                    0.5 * (1.0 + random()),
+                    0.5 * (1.0 + random()),
+                )
+                    .into(),
+                0.5 * random(),
+            ))),
+            Materials::Dielectric => Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
+        }
+    }
+    let mut objects: Vec<Box<dyn Hitable>> = vec![];
+    for cx in -11..11 {
+        for cz in -11..11 {
+            let (cxf, czf) = (cx as f32, cz as f32);
+            let center = Vec3::new(cxf + 0.9 * random(), 0.2, czf + 0.9 * random());
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                objects.push(create_object(
+                    center,
+                    random_material(choose_random_material()),
+                ));
+            }
+        }
+    }
+    let ground_sphere = Box::new(Sphere {
+        center: (0, -1000, 0).into(),
+        radius: 1000.0,
+        material: Rc::new(Box::new(Lambertian::new((0.5, 0.5, 0.5).into()))),
+    });
+    let defined_sphere1 = Box::new(Sphere {
+        center: (0, 1, 0).into(),
+        radius: 1.0,
+        material: Rc::new(Box::new(Dielectric { ref_idx: 1.5 })),
+    });
+    let defined_sphere2 = Box::new(Sphere {
+        center: (-4, 1, 0).into(),
+        radius: 1.0,
+        material: Rc::new(Box::new(Lambertian::new((0.4, 0.2, 0.1).into()))),
+    });
+    let defined_sphere3 = Box::new(Sphere {
+        center: (4, 1, 0).into(),
+        radius: 1.0,
+        material: Rc::new(Box::new(Metal::new((0.7, 0.6, 0.5).into(), 0.0))),
+    });
+    objects.push(ground_sphere);
+    objects.push(defined_sphere1);
+    objects.push(defined_sphere2);
+    objects.push(defined_sphere3);
+    objects
 }
 
 #[cfg(test)]
