@@ -24,7 +24,7 @@ jobs:
       run: cargo test -v --all --release
     - name: run
       run: cargo run --release > output.ppm
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: artifact
         path: output.ppm
