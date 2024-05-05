@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
-    let width = 200usize;
+    let width = 64usize;
     let height = ((width as f64) / aspect_ratio) as usize;
 
     let sampling_num = 100usize;
