@@ -72,7 +72,7 @@ fn random_scene() -> Vec<Box<dyn Hitable>> {
         Lambertian,
         Metal,
         Dielectric,
-    };
+    }
     fn choose_random_material() -> Materials {
         let r = random();
         match r {
