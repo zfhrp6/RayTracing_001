@@ -21,7 +21,7 @@ jobs:
     - run: cargo test -v --all --release
     - name: test output
       run: |
-        cargo run --release > test-output.ppm
+        cargo run --release 64 > test-output.ppm
         diff output.ppm test-output.ppm
     - uses: actions/upload-artifact@v4
       with:

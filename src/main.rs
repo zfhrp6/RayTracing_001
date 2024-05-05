@@ -6,10 +6,18 @@ use ray_tracing_001::misc::random;
 use ray_tracing_001::ray::Ray;
 use ray_tracing_001::vec3::Vec3;
 use std::rc::Rc;
+use std::env;
+use std::str::FromStr;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage {} <width>", args[0]);
+        std::process::exit(1);
+    }
+
     let aspect_ratio = 16.0 / 9.0;
-    let width = 64usize;
+    let width = u32::from_str(&args[1]).unwrap();
     let height = ((width as f64) / aspect_ratio) as usize;
 
     let sampling_num = 100usize;
