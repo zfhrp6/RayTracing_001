@@ -1,5 +1,15 @@
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
+
+lazy_static!{
+    static ref RNG: Mutex<StdRng> = Mutex::new(StdRng::seed_from_u64(1234));
+}
+
 pub fn random() -> f32 {
-    rand::random::<f32>()
+    let mut rng = RNG.lock().unwrap();
+    rng.gen()
 }
 
 pub fn degree_to_radian(d: f32) -> f32 {
