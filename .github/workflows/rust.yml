@@ -23,7 +23,7 @@ jobs:
       run: |
         cargo run --release 64 > test-output.ppm
         diff output.ppm test-output.ppm
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: artifact
         path: test-output.ppm
